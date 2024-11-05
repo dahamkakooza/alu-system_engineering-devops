@@ -1,0 +1,28 @@
+# Default server configuration
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # Root directory for serving files
+    root /var/www/html;
+    index index.html;
+
+    # Make the site accessible from http://localhost/
+    server_name localhost;
+
+    # Configuration for root location
+    location / {
+        # Serve request as file, directory, or show a 404 if not found
+        try_files $uri $uri/ =404;
+    }
+
+    # Custom error pages (optional)
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+
+    # Additional configuration blocks are not needed for basic setup.
+}
+
