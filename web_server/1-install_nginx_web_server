@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# This script installs Nginx, configures it to serve a custom index page on port 80, and restarts the service.
+# This script installs Nginx, sets it up to serve a custom page, and restarts the service.
 
-# Update the package list
+# Update the package list and install Nginx
 sudo apt-get update -y
-
-# Install Nginx
 sudo apt-get install nginx -y
 
-# Create a custom index.html in the default Nginx directory
-echo "Holberton School" | sudo tee /var/www/html/index.html
+# Create the custom HTML file with the required content
+echo "Holberton School for the win!" | sudo tee /var/www/html/index.html
 
-# Restart Nginx without using systemctl to apply the changes
+# Ensure Nginx is configured to use the default site on port 80
+sudo sed -i 's/listen 80 default_server;/listen 80 default_server;/' /etc/nginx/sites-available/default
+
+# Restart Nginx using service command instead of systemctl
 sudo service nginx restart
+
