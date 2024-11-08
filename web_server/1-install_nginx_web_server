@@ -1,35 +1,7 @@
 #!/usr/bin/env bash
-# Bash script to install nginx web server & configure it to serve "Holberton School" on the root page.
+# Installs Nginx
 
-# Update package list and install Nginx
-apt-get update -y
+apt-get update
 apt-get install -y nginx
-
-# Create the custom HTML directory if it doesn't already exist
-mkdir -p /var/www/html
-
-# Create the index.html file with the required content
 echo "Holberton School" > /var/www/html/index.html
-
-# Configure Nginx to use the custom directory and index file
-cat <<EOF
- EOF > /etc/nginx/sites-available/default
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html;
-
-    server_name _;
-
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-}
-EOF
-
-# Restart Nginx to apply changes
-service nginx restart
-
-EOF
+service nginx start
