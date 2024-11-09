@@ -1,56 +1,40 @@
 #!/usr/bin/env bash
-# This script installs and configures HAProxy as a load balancer for web servers web-01 and web-02.
+# bash script that installs HAProxy & makes configurations to meet the following requirements:
 
-# Install prerequisites and HAProxy
-apt-get update
-apt-get -y install software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-1.8
-apt-get update
-apt-get -y install haproxy
+sudo apt update
+sudo apt install -y haproxy
 
-# Enable HAProxy
-sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
-
-# Configure HAProxy to load balance between web-01 and web-02
+# Configure HAProxy
 cat <<EOF
-EOL > /etc/haproxy/haproxy.cfg
+EOL | sudo tee /etc/haproxy/haproxy.cfg
 global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin
-    stats timeout 30s
-    user haproxy
-    group haproxy
+    log /dev/log    local0
+    log /dev/log    local1 notice
     daemon
+    maxconn 2048
 
 defaults
     log     global
     mode    http
     option  httplog
     option  dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-    errorfile 400 /etc/haproxy/errors/400.http
-    errorfile 403 /etc/haproxy/errors/403.http
-    errorfile 408 /etc/haproxy/errors/408.http
-    errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/502.http
-    errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/504.http
+    retries 3
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+    maxconn 2000
 
 frontend http_front
     bind *:80
-    default_backend servers
+    default_backend http_back
 
-backend servers
+backend http_back
     balance roundrobin
-    server 5517-web-01 3.80.117.30:80 check
-    server 5517-web-02 54.227.173.17:80 check
+    server web-01 98.81.157.44:80 check
+    server web-02 34.224.212.77:80 check
 EOL
 
-# Restart HAProxy to apply changes
-service haproxy restart
-
+# Enable and start HAProxy
+sudo systemctl enable haproxy
+sudo systemctl restart haproxy
 EOF
